@@ -1,0 +1,44 @@
+version: "3.7"
+
+services:
+  app:
+    environment:
+      LDAP_URL: "ldap://openldap"
+      LDAP_BINDDN: "cn=admin,dc=example,dc=com"
+      LDAP_BINDPW: "secret"
+      LDAP_BASE: "dc=example,dc=com"
+      LDAP_LOGIN_ATTRIBUTE: "cn"
+      LDAP_FULLNAME_ATTRIBUTE: "displayName"
+      HASH: "SSHA"
+      PWD_SHOW_POLICY: "onerror"
+      MAIL_FROM: "selfservice@example.com"
+      NOTIFY_ON_CHANGE: "true"
+      MAIL_SMTP_HOST: "smtp.example.com"
+      MAIL_SMTP_AUTH: "true"
+      MAIL_SMTP_USER: "smtp-user"
+      MAIL_SMTP_PASS: "secret"
+      MAIL_SMTP_PORT: 587
+      USE_SMS: "false"
+      KEYPHRASE: 'secret'
+      LOGO: "https://via.placeholder.com/150"
+      BACKGROUND_IMAGE: "https://picsum.photos/1920/1080/?random"
+      DEFAULT_ACTION: "sendtoken"
+      OBSCURE_FAILURE_MESSAGES: '["mailnomatch"]'
+    image: gabe565/self-service-password
+    restart: unless-stopped
+    volumes:
+      - files:/var/www/html
+
+  web:
+    image: nginx
+    ports:
+      - 8080:80
+    links:
+      - app
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - files:/var/www/html:ro
+    restart: unless-stopped
+
+volumes:
+  files:
